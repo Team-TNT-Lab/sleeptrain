@@ -196,21 +196,18 @@ struct MockSchedule {
 
 // MARK: - 도착까지 남은 시간 계산(자정 넘김 고려)
 private func remainingTimeToArrival(fromNow now: Date, endTimeText: String) -> String {
-    let comps = endTimeText.split(separator: ":")
-    guard comps.count == 2,
-          let h = Int(comps[0]),
-          let m = Int(comps[1]) else {
-        return ""
-    }
     let cal = Calendar.current
-    let startOfToday = cal.startOfDay(for: now)
-    var arrival = cal.date(bySettingHour: h, minute: m, second: 0, of: startOfToday) ?? now
+    let startOfToday = DateFormatting.startOfDay(for: now)
+    var arrival = DateFormatting.dateFromTimeString(endTimeText, baseDate: startOfToday)
+    
     if arrival <= now {
-        arrival = cal.date(byAdding: .day, value: 1, to: arrival) ?? arrival
+        arrival = DateFormatting.addDays(1, to: arrival)
     }
+    
     let diff = cal.dateComponents([.hour, .minute], from: now, to: arrival)
     let hours = max(0, diff.hour ?? 0)
     let minutes = max(0, diff.minute ?? 0)
+    
     if hours > 0 && minutes > 0 {
         return "\(hours)시간 \(minutes)분"
     } else if hours > 0 {

@@ -3,49 +3,37 @@ import SwiftUI
 
 // MARK: - 시간 파싱 및 계산
 
-
-internal func parseDepartureTime(_ timeString: String) -> Date {
-    let calendar = Calendar.current
-    let today = Date()
-    
-    if let date = DateFormatting.dateFromTimeString(timeString) {
-        return date
-    }
-    
-    return calendar.date(bySettingHour: 23, minute: 30, second: 0, of: today) ?? today
-}
-
 /// 현재 시간부터 기상 시간까지 남은 시간 문자열 계산
-internal func calculateRemainingTimeToWakeUp(endTimeText: String) -> String {
+func calculateRemainingTimeToWakeUp(endTimeText: String) -> String {
     let now = Date()
-    
+
     guard let wakeUpTimeToday = DateFormatting.hourMinuteFormatter.date(from: endTimeText) else {
         return "계산 중..."
     }
-    
+
     let calendar = Calendar.current
     let currentComponents = calendar.dateComponents([.year, .month, .day], from: now)
     let wakeUpComponents = calendar.dateComponents([.hour, .minute], from: wakeUpTimeToday)
-    
+
     var combinedComponents = DateComponents()
     combinedComponents.year = currentComponents.year
     combinedComponents.month = currentComponents.month
     combinedComponents.day = currentComponents.day
     combinedComponents.hour = wakeUpComponents.hour
     combinedComponents.minute = wakeUpComponents.minute
-    
+
     guard var wakeUpDate = calendar.date(from: combinedComponents) else {
         return "계산 중..."
     }
-    
+
     if wakeUpDate <= now {
         wakeUpDate = calendar.date(byAdding: .day, value: 1, to: wakeUpDate) ?? wakeUpDate
     }
-    
+
     let diff = calendar.dateComponents([.hour, .minute], from: now, to: wakeUpDate)
     let hours = diff.hour ?? 0
     let minutes = diff.minute ?? 0
-    
+
     if hours > 0 && minutes > 0 {
         return "\(hours)시간 \(minutes)분"
     } else if hours > 0 {
@@ -56,7 +44,6 @@ internal func calculateRemainingTimeToWakeUp(endTimeText: String) -> String {
         return "곧"
     }
 }
-
 
 // MARK: - 문자열 포맷팅
 
@@ -94,7 +81,7 @@ private func parseRemainingTimeToMinutes(_ timeString: String) -> Int? {
     }
 
     // 여전히 숫자를 찾지 못했고 "0"도 포함하지 않는 경우 해석 불가로 처리
-    if totalMinutes == 0 && !timeString.contains("0") {
+    if totalMinutes == 0, !timeString.contains("0") {
         return nil
     }
 
@@ -120,7 +107,7 @@ private func minutesUntilNextSleepTime(startTimeText: String) -> Int {
     let now = Date()
     let calendar = Calendar.current
 
-    let todayStart = parseDepartureTime(startTimeText)
+    let todayStart = DateFormatting.dateFromTimeString(startTimeText)
 
     let nextStartTime: Date
     if todayStart > now {
@@ -133,28 +120,26 @@ private func minutesUntilNextSleepTime(startTimeText: String) -> Int {
     return max(diff, 0)
 }
 
-
 // MARK: - Check-in 관련 로직
 
 /// 체크인 가능 여부 판단
-internal func canCheckIn(remainingTimeText: String, hasCheckedInToday: Bool) -> Bool {
+func canCheckIn(remainingTimeText: String, hasCheckedInToday: Bool) -> Bool {
     guard let remainingMinutes = parseRemainingTimeToMinutes(remainingTimeText) else {
         return false
     }
-    
+
     // 지연시간이 2시간(120분)을 넘으면 체크인 불가
     if remainingMinutes <= -120 {
         return false
     }
-    
+
     return (remainingMinutes <= 30 || remainingMinutes < 0) && !hasCheckedInToday
 }
-
 
 // MARK: - UI 텍스트 생성
 
 /// 현재 남은 시간 텍스트로 인포 배너 문구 생성
-internal func makeInfoBannerText(remainingTimeText: String, startTimeText: String) -> String {
+func makeInfoBannerText(remainingTimeText: String, startTimeText: String) -> String {
     guard let remainingMinutes = parseRemainingTimeToMinutes(remainingTimeText) else {
         return "열차 출발 정보를 불러오는 중이에요"
     }
@@ -171,7 +156,7 @@ internal func makeInfoBannerText(remainingTimeText: String, startTimeText: Strin
 }
 
 /// 인포 서브 텍스트 생성
-internal func makeInfoSubText(remainingTimeText: String, isEmergencyStop: Bool = false) -> String? {
+func makeInfoSubText(remainingTimeText: String, isEmergencyStop: Bool = false) -> String? {
     if isEmergencyStop {
         return "좋은 하루 보내세요!"
     }

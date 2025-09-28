@@ -38,17 +38,14 @@ struct TimePickerSheet: View {
                             date = newDate
                         } else {
                             // 시간 범위 벗어나면 11시 취침
-                            let calendar = Calendar.current
-
-                            date = calendar.date(bySettingHour: 23, minute: 0, second: 0, of: newDate) ?? newDate
+                            date = DateFormatting.dateFromTimeString("23:00", baseDate: newDate)
                         }
                     } else if isForWakeTime {
                         if SleepTimeCalculator.isTimeInWakeTimeRange(newDate) {
                             date = newDate
                         } else {
                             // 시간 범위 벗어나면 7시 기상
-                            let calendar = Calendar.current
-                            date = calendar.date(bySettingHour: 7, minute: 0, second: 0, of: newDate) ?? newDate
+                            date = DateFormatting.dateFromTimeString("07:00", baseDate: newDate)
                         }
                     } else {
                         date = newDate

@@ -28,12 +28,11 @@ struct TransitView: View {
     // 수면 시간 계산
     private var sleepDuration: String {
         guard let settings = userSettings.first else { return "0시간" }
-        let minutes = SleepTimeCalculator.calculateSleepMinutes(
+        return DateFormatting.calculateSleepDuration(
             bedTime: settings.targetDepartureTime,
-            wakeTime: settings.targetArrivalTime
+            wakeTime: settings.targetArrivalTime,
+            isDetailFormat: false
         )
-        let hours = minutes / 60
-        return "\(hours)시간"
     }
     
     private var todayDateString: String {

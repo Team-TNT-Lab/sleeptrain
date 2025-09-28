@@ -41,6 +41,26 @@ public enum DateFormatting {
         return calendar.date(bySettingHour: hour, minute: minute, second: 0, of: baseDate) ?? baseDate
     }
     
+    /// 해당날짜 요일 추출
+    public static func extractDay(from date: Date) -> Int {
+        return Calendar.current.component(.day, from: date)
+    }
+    
+    /// 시작날짜 반환
+    public static func startOfDay(for date: Date) -> Date {
+        return Calendar.current.startOfDay(for: date)
+    }
+    
+    /// 날짜에 일수를 더한 날짜를 반환
+    public static func addDays(_ days: Int, to date: Date) -> Date {
+        return Calendar.current.date(byAdding: .day, value: days, to: date) ?? date
+    }
+
+    /// 주어진 날짜가 오늘인지 확인
+    public static func isToday(_ date: Date) -> Bool {
+        return Calendar.current.isDateInToday(date)
+    }
+    
     // MON,TUE 형태로 만들어주는 함수
     static func dayAbbrev(for date: Date) -> String {
         let formatter = DateFormatter()
@@ -112,5 +132,57 @@ public enum DateFormatting {
         } else {
             return "\(minutes)분"
         }
+    }
+
+    /// 취침 시간과 기상 시간 사이의 수면 시간을 분 단위로 계산 (자정 넘김 고려)
+    public static func calculateSleepMinutes(bedTime: Date, wakeTime: Date) -> Int {
+        let calendar = Calendar.current
+
+        // 각 시간을 분 단위로 변환
+        let bedMinutes = calendar.component(.hour, from: bedTime) * 60 + calendar.component(.minute, from: bedTime)
+        let wakeMinutes = calendar.component(.hour, from: wakeTime) * 60 + calendar.component(.minute, from: wakeTime)
+        
+        // 자정을 넘겼는지 확인하고 수면 시간 계산
+        return wakeMinutes >= bedMinutes ?
+            wakeMinutes - bedMinutes :
+            (24 * 60) - bedMinutes + wakeMinutes
+    }
+
+    /// 취침 시간 , 기상 시간 비교 수면 시간을 문자열로 계산
+    public static func calculateSleepDuration(bedTime: Date, wakeTime: Date, isDetailFormat: Bool = true) -> String {
+        let sleepMinutes = calculateSleepMinutes(bedTime: bedTime, wakeTime: wakeTime)
+        let hours = sleepMinutes / 60
+        let minutes = sleepMinutes % 60
+
+        if isDetailFormat {
+            return minutes > 0 ?
+                "\(hours)시간 \(minutes)분 자게 돼요" :
+                "\(hours)시간 자게 돼요"
+        } else {
+            return minutes > 0 ?
+                "\(hours)시간 \(minutes)분" :
+                "\(hours)시간"
+        }
+    }
+
+    /// 주간 표시용 날짜 생성
+    static func generateDateRange() -> [StreakDay] {
+        let today = startOfDay(for: Date())
+        let todayIndex = todayWeekdayIndex()
+        
+        let currentWeekMonday = addDays(-todayIndex, to: today)
+        
+        let startDate = addDays(-21, to: currentWeekMonday)
+        let endDate = addDays(6, to: currentWeekMonday)
+        
+        var dates: [StreakDay] = []
+        var currentDate = startDate
+        
+        while currentDate <= endDate {
+            dates.append(StreakDay(date: currentDate, isCompleted: false))
+            currentDate = addDays(1, to: currentDate)
+        }
+        
+        return dates
     }
 }

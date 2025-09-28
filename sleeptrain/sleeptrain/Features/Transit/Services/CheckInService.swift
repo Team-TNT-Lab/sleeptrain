@@ -22,7 +22,7 @@ final class CheckInService {
             )
         }
 
-        let departureTime = parseDepartureTime(startTimeText)
+        let departureTime = DateFormatting.dateFromTimeString(startTimeText)
         let diff = date.timeIntervalSince(departureTime)
 
         // 허용 범위 확인
@@ -45,14 +45,14 @@ final class CheckInService {
         let rec = upsertCheckIn(for: date, context: context)
         rec.status = status
         rec.checkedInAt = date
-        
+
         do {
             let userSettings = try context.fetch(FetchDescriptor<UserSettings>())
             try userSettingsManager.updateSleepState(true, context: context, userSettings: userSettings)
         } catch {
             print("수면상태 저장실패: \(error)")
         }
-        
+
         try? context.save()
 
         // 스트릭 계산
@@ -86,20 +86,20 @@ final class CheckInService {
     func wakeUp(at date: Date, context: ModelContext) -> Bool {
         do {
             let userSettings = try context.fetch(FetchDescriptor<UserSettings>())
-            
+
             // 수면 상태 해제
             try userSettingsManager.updateSleepState(false, context: context, userSettings: userSettings)
-            
+
             // 오늘의 DailyCheckIn을 성공 상태로 업데이트
             if let today = fetchCheckIn(for: date, context: context) {
                 today.status = .completed
                 today.checkedInAt = date
             }
-            
+
             // 스트릭 계산 및 업데이트
             let newStreak = computeCurrentStreak(context: context)
             saveStreakToStats(newStreak, context: context)
-            
+
             try context.save()
             return true
         } catch {
@@ -107,24 +107,24 @@ final class CheckInService {
             return false
         }
     }
-    
+
     func performManualCheckOut(at date: Date, context: ModelContext) -> Bool {
         do {
             let userSettings = try context.fetch(FetchDescriptor<UserSettings>())
-            
+
             // 수면 상태 해제
             try userSettingsManager.updateSleepState(false, context: context, userSettings: userSettings)
-            
+
             // 오늘의 DailyCheckIn을 실패 상태로 업데이트
             if let today = fetchCheckIn(for: date, context: context) {
                 today.status = .failed
                 today.checkedInAt = date
             }
-            
+
             // 스트릭 계산 및 업데이트 (실패로 처리)
             let newStreak = computeCurrentStreak(context: context)
             saveStreakToStats(newStreak, context: context)
-            
+
             try context.save()
             return true
         } catch {
@@ -136,9 +136,8 @@ final class CheckInService {
     // MARK: - Private Methods
 
     private func fetchCheckIn(for date: Date, context: ModelContext) -> DailyCheckIn? {
-        let cal = Calendar.current
-        let start = cal.startOfDay(for: date)
-        let end = cal.date(byAdding: .day, value: 1, to: start) ?? start
+        let start = DateFormatting.startOfDay(for: date)
+        let end = DateFormatting.addDays(1, to: start)
         let predicate = #Predicate<DailyCheckIn> { $0.date >= start && $0.date < end }
         let desc = FetchDescriptor<DailyCheckIn>(predicate: predicate)
         return (try? context.fetch(desc))?.first
@@ -149,7 +148,7 @@ final class CheckInService {
             return existing
         }
         let record = DailyCheckIn(
-            date: Calendar.current.startOfDay(for: date),
+            date: DateFormatting.startOfDay(for: date),
             status: .none,
             checkedInAt: nil
         )
@@ -159,7 +158,7 @@ final class CheckInService {
 
     private func computeCurrentStreak(context: ModelContext) -> Int {
         let cal = Calendar.current
-        var cursor = Calendar.current.startOfDay(for: Date())
+        var cursor = DateFormatting.startOfDay(for: Date())
         var streak = 0
 
         while true {
@@ -168,7 +167,7 @@ final class CheckInService {
                 case .completed, .lateCompleted:
                     streak += 1
                     guard let prev = cal.date(byAdding: .day, value: -1, to: cursor) else { return streak }
-                    cursor = Calendar.current.startOfDay(for: prev)
+                    cursor = DateFormatting.startOfDay(for: prev)
                 case .failed, .none:
                     return streak
                 }

@@ -137,7 +137,7 @@ struct TimeSettingView: View {
     }
 
     private var sleepDurationText: String {
-        SleepTimeCalculator.calculateSleepDuration(bedTime: bedTime, wakeTime: wakeTime)
+        DateFormatting.calculateSleepDuration(bedTime: bedTime, wakeTime: wakeTime)
     }
 
     private var isValidTimeSettings: Bool {
@@ -157,7 +157,7 @@ struct TimeSettingView: View {
                 bedTime = existingBedTime
             } else {
                 // 유효하지 않으면 기본값으로 설정
-                bedTime = Calendar.current.date(bySettingHour: 23, minute: 0, second: 0, of: Date()) ?? Date()
+                bedTime = DateFormatting.dateFromTimeString("23:00")
             }
 
             // 일어나는 시간 유효성 검증 및 조정
@@ -165,12 +165,12 @@ struct TimeSettingView: View {
                 wakeTime = existingWakeTime
             } else {
                 // 유효하지 않으면 기본값으로 설정
-                wakeTime = Calendar.current.date(bySettingHour: 7, minute: 0, second: 0, of: Date()) ?? Date()
+                wakeTime = DateFormatting.dateFromTimeString("07:00")
             }
         } else {
             // 기본값을 제약 조건에 맞게 설정
-            bedTime = Calendar.current.date(bySettingHour: 23, minute: 0, second: 0, of: Date()) ?? Date()
-            wakeTime = Calendar.current.date(bySettingHour: 7, minute: 0, second: 0, of: Date()) ?? Date()
+            bedTime = DateFormatting.dateFromTimeString("23:00")
+            wakeTime = DateFormatting.dateFromTimeString("07:00")
         }
     }
 

@@ -26,19 +26,12 @@ struct CheckInBannerView: View {
     }
 
     private var didTrainArrive: Bool {
-        let comps = endTimeText.split(separator: ":")
-        guard comps.count == 2,
-              let h = Int(comps[0]),
-              let m = Int(comps[1])
-        else {
-            return false
-        }
         let cal = Calendar.current
-        let startOfToday = cal.startOfDay(for: Date())
-        var arrivalTime = cal.date(bySettingHour: h, minute: m, second: 0, of: startOfToday)!
+        let startOfToday = DateFormatting.startOfDay(for: Date())
+        var arrivalTime = DateFormatting.dateFromTimeString(endTimeText, baseDate: startOfToday)
 
         if arrivalTime <= Date() {
-            arrivalTime = cal.date(byAdding: .day, value: 1, to: arrivalTime)!
+            arrivalTime = DateFormatting.addDays(1, to: arrivalTime)
         }
 
         return Date() > arrivalTime

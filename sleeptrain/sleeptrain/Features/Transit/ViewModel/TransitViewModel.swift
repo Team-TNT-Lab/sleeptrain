@@ -16,7 +16,6 @@ final class TransitViewModel: ObservableObject {
     @Published var trainState: TrainState = .missed
 
     private let checkInService = CheckInService()
-    private let dateService = DateService()
 
     init() {
         // 초기화 시 기본 날짜만 생성
@@ -48,7 +47,7 @@ final class TransitViewModel: ObservableObject {
             todayCheckInTime = nil
             
             // 주간 뷰 업데이트
-            if let todayIndex = weekDays.firstIndex(where: { dateService.isToday($0.date) }) {
+            if let todayIndex = weekDays.firstIndex(where: { DateFormatting.isToday($0.date) }) {
                 weekDays[todayIndex] = StreakDay(date: weekDays[todayIndex].date, isCompleted: true)
             }
         }
@@ -62,7 +61,7 @@ final class TransitViewModel: ObservableObject {
             todayCheckInTime = nil
             
             // 주간 뷰 업데이트
-            if let todayIndex = weekDays.firstIndex(where: { dateService.isToday($0.date) }) {
+            if let todayIndex = weekDays.firstIndex(where: { DateFormatting.isToday($0.date) }) {
                 weekDays[todayIndex] = StreakDay(date: weekDays[todayIndex].date, isCompleted: false)
             }
         }
@@ -89,7 +88,7 @@ final class TransitViewModel: ObservableObject {
 
     // 날짜새로고침
     func refreshDisplayDays(context: ModelContext? = nil) {
-        var baseDays = dateService.generateDisplayDays()
+        var baseDays = DateFormatting.generateDateRange()
 
         // 실제 체크인 상태 반영
         if let context = context {

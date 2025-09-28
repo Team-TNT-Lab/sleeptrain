@@ -24,7 +24,7 @@ struct DayCellView: View {
         if let settings = userSettings.first {
             return day.getCheckInStatus(daily: daily, userSettings: settings)
         } else {
-            let template = Calendar.current.date(bySettingHour: 23, minute: 30, second: 0, of: Date()) ?? Date()
+            let template = DateFormatting.dateFromTimeString("23:30")
             return day.getCheckInStatus(daily: daily, departureTemplate: template)
         }
     }
@@ -92,7 +92,7 @@ struct DayCellView: View {
     // MARK: - View Components
     private var dayNumberView: some View {
         if day.date != Date.distantPast {
-            return Text("\(Calendar.current.component(.day, from: day.date))")
+            return Text("\(DateFormatting.extractDay(from: day.date))")
                 .font(.system(size: 14))
                 .fontWeight(day.isToday ? .semibold : .regular)
                 .foregroundColor(.white)
