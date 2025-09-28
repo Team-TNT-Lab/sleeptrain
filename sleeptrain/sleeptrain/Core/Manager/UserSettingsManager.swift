@@ -15,8 +15,8 @@ class UserSettingsManager: ObservableObject {
             return existingSettings
         }
 
-        let defaultDepartureTime = Calendar.current.date(bySettingHour: 22, minute: 0, second: 0, of: Date()) ?? Date()
-        let defaultArrivalTime = Calendar.current.date(bySettingHour: 6, minute: 0, second: 0, of: Date()) ?? Date()
+        let defaultDepartureTime = DateFormatting.dateFromTimeString("22:00")
+        let defaultArrivalTime = DateFormatting.dateFromTimeString("06:00")
 
         let newSettings = UserSettings(
             targetDepartureTime: defaultDepartureTime,

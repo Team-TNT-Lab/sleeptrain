@@ -212,11 +212,8 @@ struct SettingsView: View {
             return "23:00 - 07:00"
         }
         
-        let formatter = DateFormatter()
-        formatter.dateFormat = "HH:mm"
-        
-        let departure = formatter.string(from: settings.targetDepartureTime)
-        let arrival = formatter.string(from: settings.targetArrivalTime)
+        let departure = DateFormatting.hourMinuteString(from: settings.targetDepartureTime)
+        let arrival = DateFormatting.hourMinuteString(from: settings.targetArrivalTime)
         
         return "\(departure) - \(arrival)"
     }

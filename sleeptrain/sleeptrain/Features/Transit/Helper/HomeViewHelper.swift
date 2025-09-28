@@ -12,30 +12,14 @@ internal func parseDepartureTime(_ timeString: String) -> Date {
         return date
     }
     
-    let fmts = ["h:mma", "h:mm a"]
-    for f in fmts {
-        let formatter = DateFormatter()
-        formatter.locale = Locale(identifier: "en_US_POSIX")
-        formatter.dateFormat = f
-        if let parsed = formatter.date(from: timeString) {
-            let comps = calendar.dateComponents([.hour, .minute], from: parsed)
-            return calendar.date(bySettingHour: comps.hour ?? 23,
-                                 minute: comps.minute ?? 30,
-                                 second: 0,
-                                 of: today) ?? today
-        }
-    }
-    
     return calendar.date(bySettingHour: 23, minute: 30, second: 0, of: today) ?? today
 }
 
 /// 현재 시간부터 기상 시간까지 남은 시간 문자열 계산
 internal func calculateRemainingTimeToWakeUp(endTimeText: String) -> String {
     let now = Date()
-    let formatter = DateFormatter()
-    formatter.dateFormat = "HH:mm"
     
-    guard let wakeUpTimeToday = formatter.date(from: endTimeText) else {
+    guard let wakeUpTimeToday = DateFormatting.hourMinuteFormatter.date(from: endTimeText) else {
         return "계산 중..."
     }
     

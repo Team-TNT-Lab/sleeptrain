@@ -103,7 +103,6 @@ struct TransitView: View {
                     isGuestUser: userSettings.first?.isGuestUser ?? true
                 )
                 Spacer()
-
             }
         }
         .onAppear {
@@ -182,7 +181,7 @@ struct TransitView: View {
                 isSuccessful: true
             )
 
-                        showSleepComplete = true
+            showSleepComplete = true
         }
     }
 }

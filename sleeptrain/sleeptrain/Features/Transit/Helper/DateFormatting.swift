@@ -2,7 +2,7 @@ import Foundation
 
 public enum DateFormatting {
     /// "M월 d일" 한국어 표기를 위한 포맷터
-    public static let monthDayKoreanFormatter: DateFormatter = {
+    static let monthDayKoreanFormatter: DateFormatter = {
         let formatter = DateFormatter()
         formatter.locale = Locale(identifier: "ko_KR")
         formatter.dateFormat = "M월 d일"
@@ -26,26 +26,33 @@ public enum DateFormatting {
         hourMinuteFormatter.string(from: date)
     }
     
-    /// 시간 문자열을 Date로 변환 (오늘 날짜 기준)
-    public static func dateFromTimeString(_ timeString: String) -> Date? {
+    /// 시간을 받았을때 baseDate에 해당 시간을 합친 형태로 반환해줌
+    public static func dateFromTimeString(_ timeString: String, baseDate: Date = Date()) -> Date {
         let calendar = Calendar.current
-        let today = Date()
         
         let components = timeString.split(separator: ":")
         guard components.count == 2,
               let hour = Int(components[0]),
-              let minute = Int(components[1]) else {
-            return nil
+              let minute = Int(components[1])
+        else {
+            // 에러대신 받은날짜 그대로 반환
+            return baseDate
         }
-        
-        return calendar.date(bySettingHour: hour, minute: minute, second: 0, of: today)
+        return calendar.date(bySettingHour: hour, minute: minute, second: 0, of: baseDate) ?? baseDate
     }
     
+    // MON,TUE 형태로 만들어주는 함수
     static func dayAbbrev(for date: Date) -> String {
         let formatter = DateFormatter()
         formatter.locale = Locale(identifier: "en_US_POSIX")
         formatter.dateFormat = "EEE"
         return formatter.string(from: date).uppercased()
+    }
+    
+    /// 오늘 요일의 인덱스를 반환 (월=0 ... 일=6)
+    static func todayWeekdayIndex() -> Int {
+        let weekday = Calendar.current.component(.weekday, from: Date())
+        return (weekday + 5) % 7
     }
     
     // 양수(출발 전) 남은 시간 문자열
@@ -85,7 +92,8 @@ public enum DateFormatting {
         let comps = endTimeText.split(separator: ":")
         guard comps.count == 2,
               let h = Int(comps[0]),
-              let m = Int(comps[1]) else {
+              let m = Int(comps[1])
+        else {
             return ""
         }
         let cal = Calendar.current

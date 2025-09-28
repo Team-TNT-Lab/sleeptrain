@@ -259,12 +259,7 @@ extension StreakDay {
 
 extension StreakDay {
     static func calculateRemainingTimeToDeparture(from currentTime: Date, departureTimeString: String) -> String {
-        let formatter = DateFormatter()
-        formatter.dateFormat = "HH:mm"
-        
-        guard let departureTimeToday = formatter.date(from: departureTimeString) else {
-            return ""
-        }
+        let departureTimeToday = DateFormatting.dateFromTimeString(departureTimeString, baseDate: currentTime)
         
         let calendar = Calendar.current
         let currentComponents = calendar.dateComponents([.year, .month, .day], from: currentTime)
@@ -302,12 +297,7 @@ extension StreakDay {
     }
     
     static let realDataParseDepartureTime: (String, Date) -> Date = { departureTimeString, currentTime in
-        let formatter = DateFormatter()
-        formatter.dateFormat = "HH:mm"
-        
-        guard let departureTimeToday = formatter.date(from: departureTimeString) else {
-            return currentTime
-        }
+        let departureTimeToday = DateFormatting.dateFromTimeString(departureTimeString, baseDate: currentTime)
         
         let calendar = Calendar.current
         let currentComponents = calendar.dateComponents([.year, .month, .day], from: currentTime)

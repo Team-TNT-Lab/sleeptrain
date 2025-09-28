@@ -7,11 +7,9 @@ struct RecordView: View {
     @Environment(\.modelContext) private var modelContext
     
     private var dateRangeString: String {
-        let formatter = DateFormatter()
-        formatter.dateFormat = "M월 d일"
         let startDate = Calendar.current.date(byAdding: .day, value: -23, to: Date()) ?? Date()
         let endDate = Date()
-        return "\(formatter.string(from: startDate)) ~ \(formatter.string(from: endDate))"
+        return "\(DateFormatting.monthDayKoreanString(for: startDate)) ~ \(DateFormatting.monthDayKoreanString(for: endDate))"
     }
     
     var body: some View {
