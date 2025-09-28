@@ -1,50 +1,6 @@
 import Foundation
 import SwiftUI
 
-// MARK: - 시간 파싱 및 계산
-
-/// 현재 시간부터 기상 시간까지 남은 시간 문자열 계산
-func calculateRemainingTimeToWakeUp(endTimeText: String) -> String {
-    let now = Date()
-
-    guard let wakeUpTimeToday = DateFormatting.hourMinuteFormatter.date(from: endTimeText) else {
-        return "계산 중..."
-    }
-
-    let calendar = Calendar.current
-    let currentComponents = calendar.dateComponents([.year, .month, .day], from: now)
-    let wakeUpComponents = calendar.dateComponents([.hour, .minute], from: wakeUpTimeToday)
-
-    var combinedComponents = DateComponents()
-    combinedComponents.year = currentComponents.year
-    combinedComponents.month = currentComponents.month
-    combinedComponents.day = currentComponents.day
-    combinedComponents.hour = wakeUpComponents.hour
-    combinedComponents.minute = wakeUpComponents.minute
-
-    guard var wakeUpDate = calendar.date(from: combinedComponents) else {
-        return "계산 중..."
-    }
-
-    if wakeUpDate <= now {
-        wakeUpDate = calendar.date(byAdding: .day, value: 1, to: wakeUpDate) ?? wakeUpDate
-    }
-
-    let diff = calendar.dateComponents([.hour, .minute], from: now, to: wakeUpDate)
-    let hours = diff.hour ?? 0
-    let minutes = diff.minute ?? 0
-
-    if hours > 0 && minutes > 0 {
-        return "\(hours)시간 \(minutes)분"
-    } else if hours > 0 {
-        return "\(hours)시간"
-    } else if minutes > 0 {
-        return "\(minutes)분"
-    } else {
-        return "곧"
-    }
-}
-
 // MARK: - 문자열 포맷팅
 
 /// "1시간 30분" 같은 문자열을 분 단위로 변환 (지연이면 음수)
